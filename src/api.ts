@@ -13,7 +13,5 @@ mock.onGet('/data').reply(200, {
 })
 
 export function getData () {
-  const data = axios.get('/data')
-  console.log(data)
-  return data
+  return axios.get('/data')
 }

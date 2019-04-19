@@ -5,9 +5,7 @@ import actions, { Actions } from './actions'
 import { getData } from '../api'
 import { EMPTY, from } from 'rxjs'
 
-function emptyResult () {
-  return EMPTY
-}
+const emptyResult = () => EMPTY
 
 function dataFetcherScope (state: State) {
   return state.dataFetcher
@@ -18,14 +16,14 @@ function equalStates (x: DataFetcherState, y: DataFetcherState) {
 }
 
 function mapState (state: DataFetcherState) {
-  function dataLoading () {
+  function dataLoadingSideEffect () {
     return getData()
       .then(response => response.data)
       .then(actions.dataResponse)
   }
 
   return dataFetcherState.match(state, {
-    dataLoading: () => from(dataLoading(), undefined),
+    dataLoading: () => from(dataLoadingSideEffect(), undefined),
     init: emptyResult,
     dataLoadingError: emptyResult,
     uiTriggeredDataLoading: emptyResult
@@ -34,6 +32,7 @@ function mapState (state: DataFetcherState) {
 
 type DataFetcherEpic = Epic<Actions, Actions, State>
 const dataFetcherEpic: DataFetcherEpic = (action$, state$) => {
+  // Would be better to action$.pipe()...
   return state$.pipe(
     map(dataFetcherScope),
     distinctUntilChanged(equalStates),
